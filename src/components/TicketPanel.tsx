@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useAuth } from '@clerk/nextjs';
 import { toast } from 'sonner';
+
 
 const socket = io('http://localhost:3001');
 
@@ -23,6 +24,7 @@ interface Props {
 
 export default function TicketPanel({ eventId, initialTypes }: Props) {
   const {user , isLoaded, isSignedIn} = useUser();
+  const { getToken } = useAuth();
   const [types, setTypes] = useState<TicketType[]>(initialTypes);
   const [loadingId, setLoadingId] = useState<number | null>(null); // Track which button is spinning
   const [message, setMessage] = useState('');
@@ -55,13 +57,16 @@ export default function TicketPanel({ eventId, initialTypes }: Props) {
     setMessage('');
 
     try {
+      const token = await getToken();
       const res = await fetch('http://localhost:3001/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ 
           eventId, 
           ticketTypeId: typeId, 
-          userId: user.id 
         }),
       });
 
@@ -75,6 +80,7 @@ export default function TicketPanel({ eventId, initialTypes }: Props) {
        toast.error(err.message || "Failed to buy ticket");
       }
     } catch (error) {
+      console.error(error);
       toast.error("Connection Error");
     } finally {
       setLoadingId(null);
