@@ -1,10 +1,14 @@
-// This makes it a Client Component so we can use useEffect
 'use client'; 
 
 import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
+import { motion } from 'framer-motion';
+import { Ticket as TicketIcon, Calendar, MapPin, QrCode, ArrowLeft, Clock } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import Link from 'next/link';
 
-// Define what a "Full Ticket" looks like coming from the API
 interface Ticket {
   id: number;
   createdAt: string;
@@ -26,97 +30,165 @@ export default function MyTickets() {
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn || !user) {
-      setLoading(false);
+      if (isLoaded && !isSignedIn) setLoading(false);
       return;
     }
-const fetchTickets = async () => {
+
+    const fetchTickets = async () => {
       try {
-        const res = await fetch('http://localhost:3001/tickets/user/101');
-        
-        if (!res.ok) {
-           throw new Error(`Server error: ${res.status}`);
-        }
-
+        const res = await fetch(`http://localhost:3001/tickets/user/${user.id}`);
         const data = await res.json();
-        
-        // Safety Check: Is it actually an array?
-        if (Array.isArray(data)) {
-          setTickets(data);
-        } else {
-          console.error("API did not return a list:", data);
-          setTickets([]); // Set to empty list to prevent crash
-        }
-
+        setTickets(Array.isArray(data) ? data : []);
       } catch (error) {
-        console.error('Failed to load tickets', error);
-        setTickets([]);
+        console.error('Failed to load tickets');
       } finally {
         setLoading(false);
       }
     };
 
     fetchTickets();
-  }, [isLoaded,isSignedIn,user]);
+  }, [isLoaded, isSignedIn, user]);
 
-  if (!isLoaded) return <div className="p-10 text-white">Loading...</div>;
+  // 1. Loading State (Skeleton)
+  if (loading) return (
+    <div className="min-h-screen pt-24 px-6 flex justify-center">
+       <div className="animate-pulse flex flex-col gap-4 w-full max-w-2xl">
+          <div className="h-8 bg-gray-800 rounded w-1/3"></div>
+          <div className="h-48 bg-gray-800 rounded-xl"></div>
+          <div className="h-48 bg-gray-800 rounded-xl"></div>
+       </div>
+    </div>
+  );
   
+  // 2. Not Signed In State
   if (!isSignedIn) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white p-10 flex flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold mb-4">Please Sign In</h1>
-        <p className="text-gray-400">You need to be logged in to view your wallet.</p>
+      <div className="min-h-screen flex flex-col items-center justify-center text-center p-6">
+        <div className="bg-purple-500/10 p-6 rounded-full mb-6">
+          <TicketIcon className="w-12 h-12 text-purple-400" />
+        </div>
+        <h1 className="text-3xl font-bold mb-2">Access Your Wallet</h1>
+        <p className="text-gray-400 mb-8 max-w-md">Sign in to view your purchased tickets and access your QR codes.</p>
+        <Link href="/">
+          <Button>Return Home</Button>
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-10">
-      <h1 className="text-3xl font-bold mb-8 text-blue-400">My Wallet</h1>
-
-      {loading ? (
-        <p>Loading your receipts...</p>
-      ) : tickets.length === 0 ? (
-        <p className="text-gray-500">You haven&apos;t bought any tickets yet.</p>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {tickets.map((t) => (
-            <div key={t.id} className="bg-white text-black rounded-xl overflow-hidden shadow-lg relative">
-              
-              {/* Top Banner (Event Info) */}
-              <div className="bg-blue-600 p-4 text-white">
-                <h3 className="font-bold text-lg">{t.event.title}</h3>
-                <p className="text-sm opacity-90">📍 {t.event.venue}</p>
-              </div>
-
-              {/* Ticket Body */}
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <span className="bg-gray-200 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                    {t.ticketType.name}
-                  </span>
-                  <span className="font-bold text-xl">LKR {t.ticketType.price}</span>
-                </div>
-
-                <div className="border-t border-dashed border-gray-400 my-4"></div>
-
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>Ticket ID:</span>
-                  <span className="font-mono font-bold">#{t.id.toString().padStart(6, '0')}</span>
-                </div>
-                <div className="flex justify-between text-sm text-gray-600 mt-1">
-                  <span>Purchased:</span>
-                  <span>{new Date(t.createdAt).toLocaleDateString()}</span>
-                </div>
-              </div>
-
-              {/* Fake QR Code Strip */}
-              <div className="bg-gray-100 p-3 flex justify-center border-t border-gray-200">
-                 <div className="h-8 w-48 bg-gray-800 rounded opacity-20"></div>
-              </div>
-            </div>
-          ))}
+    <div className="min-h-screen pt-24 pb-12 px-6">
+      <div className="max-w-4xl mx-auto">
+        
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-12">
+          <Link href="/">
+            <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/10">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+              Digital Wallet
+            </h1>
+            <p className="text-gray-400 text-sm">
+              {user.firstName ? `Welcome back, ${user.firstName}` : 'Your secure tickets'}
+            </p>
+          </div>
         </div>
-      )}
+
+        {/* Empty State */}
+        {tickets.length === 0 ? (
+          <div className="text-center py-20 border border-dashed border-gray-700 rounded-3xl bg-gray-900/30">
+            <p className="text-gray-400 mb-4">No tickets found in your wallet.</p>
+            <Link href="/">
+              <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-500/10">
+                Browse Events
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2">
+            {tickets.map((t, index) => (
+              <motion.div
+                key={t.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.1 }}
+                className="group relative"
+              >
+                {/* The Ticket Card */}
+                <div className="relative bg-gray-900 border border-white/10 rounded-2xl overflow-hidden hover:border-purple-500/50 transition-all duration-300 shadow-2xl">
+                  
+                  {/* Decorative Gradient Background */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 blur-3xl -mr-16 -mt-16 rounded-full pointer-events-none"></div>
+
+                  <div className="p-6 relative z-10">
+                    {/* Event Title & Type */}
+                    <div className="flex justify-between items-start mb-6">
+                      <div>
+                        <Badge variant="secondary" className="mb-2 bg-purple-500/10 text-purple-300 border-purple-500/20">
+                          {t.ticketType.name} Pass
+                        </Badge>
+                        <h3 className="text-xl font-bold text-white leading-tight">{t.event.title}</h3>
+                      </div>
+                      <div className="text-right">
+                         <span className="block text-xs text-gray-500 uppercase tracking-wider">Price</span>
+                         <span className="font-mono font-bold text-lg text-emerald-400">LKR {t.ticketType.price}</span>
+                      </div>
+                    </div>
+
+                    {/* Details Grid */}
+                    <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-gray-500 text-xs uppercase font-bold">
+                          <Calendar className="w-3 h-3" /> Date
+                        </div>
+                        <div className="text-gray-300 font-medium">
+                          {new Date(t.event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-gray-500 text-xs uppercase font-bold">
+                          <Clock className="w-3 h-3" /> Time
+                        </div>
+                        <div className="text-gray-300 font-medium">7:00 PM</div>
+                      </div>
+                      <div className="col-span-2 space-y-1">
+                        <div className="flex items-center gap-2 text-gray-500 text-xs uppercase font-bold">
+                          <MapPin className="w-3 h-3" /> Venue
+                        </div>
+                        <div className="text-gray-300 font-medium truncate">{t.event.venue}</div>
+                      </div>
+                    </div>
+
+                    {/* Dotted Divider (Tear-off effect) */}
+                    <div className="relative h-px bg-gray-700 my-6">
+                       <div className="absolute -left-8 -top-3 w-6 h-6 rounded-full bg-background z-20"></div>
+                       <div className="absolute -right-8 -top-3 w-6 h-6 rounded-full bg-background z-20"></div>
+                    </div>
+
+                    {/* Footer / QR Code Placeholder */}
+                    <div className="flex items-center justify-between">
+                       <div className="text-xs text-gray-500 font-mono">
+                          ID: #{t.id.toString().padStart(6, '0')}
+                          <br />
+                          Purchased: {new Date(t.createdAt).toLocaleDateString()}
+                       </div>
+                       
+                       {/* Fake QR Code */}
+                       <div className="bg-white p-1 rounded">
+                          <QrCode className="w-12 h-12 text-black" />
+                       </div>
+                    </div>
+
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

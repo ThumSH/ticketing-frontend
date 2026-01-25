@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { useUser } from '@clerk/nextjs';
+import { toast } from 'sonner';
 
 const socket = io('http://localhost:3001');
 
@@ -46,7 +47,7 @@ export default function TicketPanel({ eventId, initialTypes }: Props) {
   const buyTicket = async (typeId: number) => {
 
     if (!isLoaded || !isSignedIn) {
-      alert("Please Sign In to buy tickets!");
+      toast.error("Please Sign In to buy tickets!");
       return;
     }
 
@@ -65,13 +66,16 @@ export default function TicketPanel({ eventId, initialTypes }: Props) {
       });
 
       if (res.ok) {
-        setMessage('✅ Ticket Purchased!');
+        toast.success("Ticket Purchased!", {
+          description: "Check your wallet for the QR code.",
+          duration: 4000,
+        });
       } else {
         const err = await res.json();
-        setMessage(`❌ ${err.message}`);
+       toast.error(err.message || "Failed to buy ticket");
       }
     } catch (error) {
-      setMessage('❌ Connection Error');
+      toast.error("Connection Error");
     } finally {
       setLoadingId(null);
     }
@@ -115,8 +119,6 @@ export default function TicketPanel({ eventId, initialTypes }: Props) {
           </div>
         );
       })}
-      
-      {message && <p className="mt-4 text-center text-yellow-400 font-mono text-sm">{message}</p>}
     </div>
   );
 }
