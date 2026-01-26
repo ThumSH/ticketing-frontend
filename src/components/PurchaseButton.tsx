@@ -12,7 +12,7 @@ export default function PurchaseButton({ eventId }: { eventId: number }) {
 
     try {
       // 1. Send the "Order" to our NestJS Backend
-      const res = await fetch('http://localhost:3001/orders', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

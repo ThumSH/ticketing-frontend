@@ -4,79 +4,75 @@ import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { motion } from 'framer-motion';
 import { Ticket as TicketIcon, Calendar, MapPin, QrCode, ArrowLeft, Clock } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface Ticket {
-  id: number;
-  createdAt: string;
-  event: {
-    title: string;
-    venue: string;
-    date: string;
-  };
-  ticketType: {
-    name: string;
-    price: number;
-  };
+  id: number;
+  createdAt: string;
+  event: {
+    title: string;
+    venue: string;
+    date: string;
+  };
+  ticketType: {
+    name: string;
+    price: number;
+  };
 }
 
 export default function MyTickets() {
-  const { user, isLoaded, isSignedIn } = useUser();
-  const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { user, isLoaded, isSignedIn } = useUser();
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!isLoaded || !isSignedIn || !user) {
-      if (isLoaded && !isSignedIn) setLoading(false);
-      return;
-    }
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !user) {
+      if (isLoaded && !isSignedIn) setLoading(false);
+      return;
+    }
 
-    const fetchTickets = async () => {
-      try {
-        const res = await fetch(`http://localhost:3001/tickets/user/${user.id}`);
-        const data = await res.json();
-        setTickets(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error('Failed to load tickets');
-      } finally {
-        setLoading(false);
-      }
-    };
+    const fetchTickets = async () => {
+      try {
+       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tickets/user/${user.id}`);
+        const data = await res.json();
+        setTickets(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.log('Failed to load tickets',error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    fetchTickets();
-  }, [isLoaded, isSignedIn, user]);
+    fetchTickets();
+  }, [isLoaded, isSignedIn, user]);
 
-  // 1. Loading State (Skeleton)
-  if (loading) return (
-    <div className="min-h-screen pt-24 px-6 flex justify-center">
-       <div className="animate-pulse flex flex-col gap-4 w-full max-w-2xl">
-          <div className="h-8 bg-gray-800 rounded w-1/3"></div>
-          <div className="h-48 bg-gray-800 rounded-xl"></div>
-          <div className="h-48 bg-gray-800 rounded-xl"></div>
-       </div>
-    </div>
-  );
-  
-  // 2. Not Signed In State
-  if (!isSignedIn) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-center p-6">
-        <div className="bg-purple-500/10 p-6 rounded-full mb-6">
-          <TicketIcon className="w-12 h-12 text-purple-400" />
-        </div>
-        <h1 className="text-3xl font-bold mb-2">Access Your Wallet</h1>
-        <p className="text-gray-400 mb-8 max-w-md">Sign in to view your purchased tickets and access your QR codes.</p>
-        <Link href="/">
-          <Button>Return Home</Button>
-        </Link>
-      </div>
-    );
-  }
+  // 1. Loading State (Skeleton)
+  if (loading) return (
+    <div className="min-h-screen pt-24 px-6 flex justify-center">
+       <div className="animate-pulse flex flex-col gap-4 w-full max-w-2xl">
+          <div className="h-8 bg-gray-800 rounded w-1/3"></div>
+          <div className="h-48 bg-gray-800 rounded-xl"></div>
+          <div className="h-48 bg-gray-800 rounded-xl"></div>
+       </div>
+    </div>
+  );
+  
+  // 2. Not Signed In State
+  if (!isSignedIn) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center text-center p-6">
+        <div className="bg-purple-500/10 p-6 rounded-full mb-6">
+          <TicketIcon className="w-12 h-12 text-purple-400" />
+        </div>
+        <h1 className="text-3xl font-bold mb-2">Access Your Wallet</h1>
+        <p className="text-gray-400 mb-8 max-w-md">Sign in to view your purchased tickets and access your QR codes.</p>
+      </div>
+    );
+  }
 
-  return (
+ return (
     <div className="min-h-screen pt-24 pb-12 px-6">
       <div className="max-w-4xl mx-auto">
         
@@ -192,3 +188,4 @@ export default function MyTickets() {
     </div>
   );
 }
+

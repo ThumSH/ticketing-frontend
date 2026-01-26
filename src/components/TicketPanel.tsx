@@ -6,7 +6,7 @@ import { useUser, useAuth } from '@clerk/nextjs';
 import { toast } from 'sonner';
 
 
-const socket = io('http://localhost:3001');
+const socket = io(process.env.NEXT_PUBLIC_API_URL);
 
 // 1. Define what a "Type" looks like
 interface TicketType {
@@ -58,7 +58,7 @@ export default function TicketPanel({ eventId, initialTypes }: Props) {
 
     try {
       const token = await getToken();
-      const res = await fetch('http://localhost:3001/orders', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
