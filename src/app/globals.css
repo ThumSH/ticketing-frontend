@@ -1,21 +1,36 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #ffffff;
-  --color-foreground: #09090b;
-  --color-primary: #7c3aed; /* Purple 600 */
-  --color-primary-foreground: #ffffff;
+  --color-background: #000000;
+  --color-foreground: #ffffff;
+  
+  /* Modern Neon Green Theme */
+  --color-primary: #22c55e; /* Green 500 */
+  --color-primary-foreground: #000000;
+  
+  --color-accent: #22c55e;
+  --color-accent-foreground: #000000;
 }
 
-/* Custom Utilities for Shadcn */
+/* Custom Utilities */
 @layer utilities {
-  .border-border { border-color: #e4e4e7; }
+  .border-border { border-color: #27272a; } /* Zinc 800 */
   .bg-background { background-color: var(--color-background); }
   .text-foreground { color: var(--color-foreground); }
+  
+  /* Professional Glass Effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
 }
 
 body {
-  background-color: #000000; /* Dark Mode by default for the 'Modern' look */
-  color: #ffffff;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
   font-family: system-ui, -apple-system, sans-serif;
+  /* Corrected Font Smoothing */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

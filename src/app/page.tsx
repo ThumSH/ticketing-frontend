@@ -1,66 +1,107 @@
 import Navbar from '@/components/Navbar';
-import TicketPanel from '@/components/TicketPanel';
-import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Sparkles } from 'lucide-react';
+import Hero from '@/components/Hero';
+import Partners from '@/components/Partners';
+import Features from '@/components/Features';
+import Footer from '@/components/Footer';
+import CategoryFilter from '@/components/CategoryFilter';
 import { EventCard } from '@/components/EventCard';
+import { Badge } from '@/components/ui/badge';
 
-
-// Backend Data Types
+// Types
 interface TicketType {
-  id: number;
-  name: string;
-  price: number;
-  totalSeats: number;
-  seatsSold: number;
+  id: number;
+  name: string;
+  price: number;
+  totalSeats: number;
+  seatsSold: number;
 }
 interface Event {
-  id: number;
-  title: string;
-  description: string;
-  date: string;
-  venue: string;
-  ticketTypes: TicketType[];
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  venue: string;
+  ticketTypes: TicketType[];
 }
 
 async function getEvents() {
-  // Ensure this URL matches your backend
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to fetch');
-  return res.json();
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events`, { cache: 'no-store' });
+    if (!res.ok) return [];
+    return res.json();
+  } catch (e) {
+    return [];
+  }
 }
 
 export default async function Home() {
-  const events: Event[] = await getEvents();
+  const events: Event[] = await getEvents();
 
-  return (
-    <main className="min-h-screen pt-24 pb-12 px-6">
-      <Navbar />
+  return (
+    <main className="min-h-screen bg-black text-white selection:bg-green-500 selection:text-black font-sans">
+      <Navbar />
+      <Hero />
+      
+      {/* Search & Categories Bar (Sticky-ish) */}
+      <div className="sticky top-20 z-40 bg-black/80 backdrop-blur-xl border-y border-white/5 py-4">
+        <div className="max-w-7xl mx-auto px-6">
+           <CategoryFilter />
+        </div>
+      </div>
 
-      {/* Hero Section */}
-      <section className="max-w-7xl mx-auto mb-16 text-center space-y-6">
-        <Badge variant="outline" className="border-purple-500/50 text-purple-300 px-4 py-1 text-sm uppercase tracking-widest backdrop-blur-sm">
-          <Sparkles className="w-3 h-3 mr-2 text-purple-400" />
-          Live Music Experience
-        </Badge>
-        
-        <h1 className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-gray-500 tracking-tight">
-          Find Your <br/> Next <span className="text-purple-500">Rhythm.</span>
-        </h1>
-        
-        <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-          Secure your spot at the hottest musical events in Sri Lanka. 
-          Real-time ticketing, instant QR codes, zero hassle.
-        </p>
+      <div className="max-w-7xl mx-auto px-6 py-12 space-y-20">
+        
+        {/* Section: Trending Events */}
+        <section>
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <Badge variant="outline" className="mb-3 border-green-500/30 text-green-400 bg-green-500/5">
+                Happening This Month
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-bold text-white">
+                Trending Now
+              </h2>
+            </div>
+            <a href="#" className="hidden md:block text-sm font-bold text-green-500 hover:underline">
+              View All Events &rarr;
+            </a>
+          </div>
 
-      </section>
+          {events.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {events.map((event, index) => (
+                <EventCard key={event.id} event={event} index={index} />
+              ))}
+            </div>
+          ) : (
+             <div className="text-center py-32 bg-zinc-900/30 rounded-3xl border border-dashed border-zinc-800">
+               <p className="text-zinc-500">No events currently scheduled.</p>
+             </div>
+          )}
+        </section>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-        {events.map((event, index) => (
-          <EventCard key={event.id} event={event} index={index} />
-        ))}
-      </div>
-    </main>
-  );
+        {/* Section: Fake 'Deals' Row (To mimic mytickets.lk deals) */}
+        <section className="bg-gradient-to-r from-green-900/20 to-black rounded-3xl p-8 border border-green-500/20 relative overflow-hidden">
+           <div className="absolute top-0 right-0 p-32 bg-green-500/20 blur-[100px] rounded-full pointer-events-none" />
+           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+              <div>
+                <h3 className="text-2xl font-bold text-white mb-2">Exclusive Student Offers</h3>
+                <p className="text-zinc-400 max-w-lg">
+                  Get up to 50% off on selected tech workshops and music events. 
+                  Valid for all university students in Sri Lanka.
+                </p>
+              </div>
+              <button className="bg-white text-black px-6 py-3 rounded-xl font-bold hover:bg-green-400 transition-colors">
+                View Deals
+              </button>
+           </div>
+        </section>
+
+      </div>
+
+      <Partners />
+      <Features />
+      <Footer />
+    </main>
+  );
 }
-
