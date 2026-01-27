@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import CategoryFilter from '@/components/CategoryFilter';
 import { EventCard } from '@/components/EventCard';
 import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
 
 // Types
 interface TicketType {
@@ -62,9 +63,9 @@ export default async function Home() {
                 Trending Now
               </h2>
             </div>
-            <a href="#" className="hidden md:block text-sm font-bold text-green-500 hover:underline">
-              View All Events &rarr;
-            </a>
+          <Link href="/events" className="hidden md:block text-sm font-bold text-green-500 hover:text-green-400 hover:underline transition-colors">
+            View All Events &rarr;
+          </Link>
           </div>
 
           {events.length > 0 ? (

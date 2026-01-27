@@ -1,8 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Calendar, MapPin } from 'lucide-react';
+import { Calendar, MapPin, ArrowRight } from 'lucide-react';
 import TicketPanel from './TicketPanel';
+import Link from 'next/link';
+import { Button } from './ui/button';
 
 interface TicketType {
   id: number;
@@ -70,9 +72,12 @@ export function EventCard({ event, index }: { event: Event; index: number }) {
           {event.description}
         </p>
 
-        {/* Push content to bottom */}
-        <div className="mt-auto">
-          <TicketPanel eventId={event.id} initialTypes={event.ticketTypes} />
+<div className="mt-auto pt-6 border-t border-white/5">
+          <Link href={`/events/${event.id}`} className="w-full">
+            <Button className="w-full bg-green-600 hover:bg-green-500 text-black font-bold h-12 rounded-xl text-lg group-hover:scale-[1.02] transition-transform">
+              Book Now <ArrowRight className="ml-2 w-5 h-5" />
+            </Button>
+          </Link>
         </div>
       </div>
     </motion.div>
