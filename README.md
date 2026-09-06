@@ -1,36 +1,159 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎟️ Event Ticketing Platform
 
-## Getting Started
+### Full-Stack Event Discovery, Ticket Booking & Real-Time Ticketing System
 
-First, run the development server:
+A personal full-stack project built to explore the architecture of a modern event-ticketing platform.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The system allows users to discover events, interact with ticketing workflows, place orders, and receive real-time updates through a dedicated frontend and backend architecture.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application is split into:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- a **Next.js frontend**
+- a **NestJS backend**
+- a **PostgreSQL database**
+- **Clerk authentication**
+- real-time communication using **Socket.IO / WebSockets**
+- background processing using **BullMQ**
+- containerized local infrastructure using **Docker / Docker Compose**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🎯 Project Goal
 
-To learn more about Next.js, take a look at the following resources:
+The goal of this project is to build a scalable event-ticketing platform while exploring more advanced full-stack concepts such as:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- frontend/backend separation
+- secure authentication
+- real-time communication
+- event-driven workflows
+- background job processing
+- relational data modelling
+- ticket and order management
+- containerized development environments
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+# ✨ Core Features
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🔐 Authentication
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Authentication is handled using **Clerk**.
+
+The frontend integrates Clerk for:
+
+- user sign-in
+- sign-up
+- session management
+- authenticated user state
+- protected user functionality
+
+The backend also integrates with Clerk so authenticated frontend users can securely access protected application resources.
+
+---
+
+## 🎫 Event Management
+
+The application includes a dedicated event domain for managing event-related functionality.
+
+This keeps event logic separate from ticketing and order processing and helps maintain a cleaner application architecture.
+
+---
+
+## 🎟️ Ticket Management
+
+Tickets are handled through a dedicated backend module.
+
+This separation allows ticket availability, booking logic, and ticket lifecycle functionality to remain independent from other parts of the system.
+
+---
+
+## 🛒 Order Processing
+
+The backend includes a dedicated order module responsible for purchase-related workflows.
+
+This allows the application to manage order creation and ticket-related transactions separately from event management.
+
+---
+
+## ⚡ Real-Time Communication
+
+The application uses **Socket.IO and WebSockets** to support real-time communication between the frontend and backend.
+
+This architecture can support features such as:
+
+- live ticket availability
+- event updates
+- order status changes
+- booking notifications
+- real-time user feedback
+
+  📸 Screenshots
+
+Screenshots will be added as development progresses.
+
+
+Homepage / Event Discovery
+  <img width="1920" height="896" alt="image" src="https://github.com/user-attachments/assets/74995673-1576-47f9-b3fa-8a52c4f2530b" />
+
+Authentication Screen
+  <img width="1920" height="900" alt="image" src="https://github.com/user-attachments/assets/39d6e53b-9b4f-4a6b-8fd0-13ec0261c1cd" />
+
+
+## 🧵 Background Processing
+
+The backend uses **BullMQ** for asynchronous background processing.
+
+This allows long-running or delayed tasks to be handled outside normal request-response flows.
+
+Potential use cases include:
+
+- reservation expiry
+- ticket release
+- notification jobs
+- email processing
+- order-related background tasks
+
+---
+
+## 🐳 Docker & Local Infrastructure
+
+Docker is used to simplify local development and maintain a consistent environment.
+
+The project includes **Docker Compose** configuration for supporting backend infrastructure such as the PostgreSQL database and other development services.
+
+This helps reduce manual setup and makes the application easier to run consistently across different machines.
+
+---
+
+# 🏗️ System Architecture
+
+```text
+┌──────────────────────────────────────────┐
+│          Next.js Frontend                │
+│                                          │
+│ React + TypeScript + Clerk               │
+│ Socket.IO Client + Tailwind CSS          │
+└───────────────────┬──────────────────────┘
+                    │
+                    │ REST / WebSockets
+                    │ Authenticated Requests
+                    ▼
+┌──────────────────────────────────────────┐
+│            NestJS Backend                │
+│                                          │
+│ Clerk Authentication                     │
+│ Auth • Events • Orders • Tickets         │
+│ Socket.IO • BullMQ • TypeORM             │
+└───────────────────┬──────────────────────┘
+                    │
+                    ▼
+┌──────────────────────────────────────────┐
+│              PostgreSQL                  │
+│                                          │
+│ Events • Tickets • Orders • Users        │
+└──────────────────────────────────────────┘
+
+          Local Development
+                  │
+                  ▼
+        Docker / Docker Compose
